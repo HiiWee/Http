@@ -143,3 +143,78 @@ LAN 카드가 ---> 인터넷에 연결되고 ----> 서버로 보내짐
   > 1. 클라이언트가 도메인 명으로 요청
   > 2. DNS서버가 응답으로 IP를 알려줌
   > 3. 받은 IP로 클라이언트는 서버로 접속한다.
+  
+<br><br>
+
+## [URI와 웹 브라우저 요청 흐름 : URI]
+**URI : Uniform Resource Identifier**   
+URL는 로케이터(locator)와 이름(name)또는 둘 다 추가로 분류될 수 있다.
+
+* URI는 주민번호처럼 자원 자체를 식별하는 방법이다.
+* 여기에 크게 2가지가 있다.
+  * URL(Resource Locator) : 리소스의 위치(거의 URL만 사용)
+    > foo://example.com:8042/over/there?name=ferret#nose
+  * URN(Resource Name) : 리소스의 이름
+    > urn:example:animal:ferret:nose
+
+* URI 단어의 뜻
+  * Uniform : 리소스 식별하는 통일된 방식
+  * Resource : 자원, URI로 식별할 수 있는 모든 것 (제한 없음)
+  * Identifier: 다른 항목과 구분하는데 필요한 정보
+  * URL의 Locator : 리소스가 있는 위치를 지정
+  * URN의 Name : 리소스에 이름을 부여
+  * 위치는 변할 수 있지만, 이름은 변하지 않음
+  * URN이름만으로 실제 리소스 찾는 것은 보편화 되지 않음
+  * 따라서 URI를 URL과 같은 의미로 이야기 함
+<br><br>
+* URL의 문법
+  * sceme://[userinfo@]host[:port][/path][?query][#fragment]
+  * https://www.google.com:443/search?q=hello&hl=ko
+  
+  * URL scheme
+    * 프로토콜(https)
+    * 주로 프로토콜(어떤 방식으로 자원에 접근하는지의 클라이언트 서버간 약속, 규칙) 사용 (예:http, https, ftp등)
+    * http는 80, https 443 포트 사용(생략가능)
+    * https는 https에 추가보안(HTTP secure)
+  * URL userinfo
+    * URL에 사용자 정보를 포함해 인증하지만 거의 사용하지 않음
+  * URL host
+    * 호스트명(www.google.com)
+    * 도메인 명 또는 IP주소를 직접 사용 가능
+  * URL PORT
+    * 포트 번호(443)
+    * 포트, 접속 포트(일반적으로 생략)
+  * URL path
+    * 패스(/search)
+    * 리소스 경로, 계층적 구조
+    * /home/file.jpg 혹은 /members/100과 같이 계층적
+  * URL query
+    * 쿼리 파라미터(q=hello&hl=ko)
+    * key = value 형태
+    * ?로 시작, &로 추가 가능(?keyA=valueA&keyB=valueB)
+    * query parameter, query string 등으로 불림, 웹 서버에 제공하는 파라미터, 문자 형태임
+  * URL fragment
+    * html 내부 북마크 등에 사용
+    * 서버에 전송하는 정보 아님
+
+<br><br>
+
+## [URI와 웹 브라우저 요청 흐름 : 웹 브라우저 요청 흐름]
+https://www.google.com:443/search?q=hello&hl=ko 이렇게 보내게 되면   
+먼저 DNS 조회를 한다 --> IP 추출(HTTPS PORT 생략, 443)   
+1. 웹 브라우저가 HTTP 요청 메시지를 생성한다.
+   * 메시지 내용 : `GET /search?q=hello&hi=ko HTTP/1.1 HOST: www.google.com`
+2. SOCKET 라이브러리를 통해 전달
+    - A: TCP/IP연결(IP, PORT)
+    - B: 데이터 전달
+3. TCP/IP 패킷 생성, HTTP 메시지 포함 이후 인터넷으로 흘러들어감
+
+결국 출발지 IP and PORT, 목적지 IP and PORT, 전송데이터(웹브라우저가 만든 HTTP 요청 메시지)가 만들어짐   
+이후 인터넷 망으로 요청 패킷 던져짐, 구글 서버는 요청 패킷을 받아서 TCP/IP는 버리고 HTTP 메시지를 받아서 분석하고 HTTP 응답 메시지를 만들고 TCP/IP로 씌워서 응답 패킷을 만들어 반환한다.
+  * HTTP 응답 메시지
+  > HTTP/1.1 200 OK   
+  > Content-Type: text/html;charset=UTF-8(인코딩)   
+  > Content-Length: 3423(실제 길이)   
+  > -HTML코드-
+
+이후 클라이언트가 응답 패킷의 HTTP 응답 메시지를 열면 html결과를 볼 수 있게 된다.
