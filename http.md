@@ -295,7 +295,7 @@ https://www.google.com:443/search?q=hello&hl=ko 이렇게 보내게 되면
 
 <br><br>
 
-## HTTP 기본 : 비 연결성(connectionless)
+## [HTTP 기본 : 비 연결성(connectionless)]
 * 클라이언트가 3개가 있고 서버에 각각 연결했을때   
   서버 1개가 요청을 해도 다른 2개가 연결되어 있는 상태면 요청이 없어도 서버 자원이 계속 사용된다. (Request, Response 객체 생성 등)
 
@@ -328,7 +328,7 @@ https://www.google.com:443/search?q=hello&hl=ko 이렇게 보내게 되면
 
 <br><br>
 
-## HTTP 기본 : HTTP 메시지
+## [HTTP 기본 : HTTP 메시지]
   
 ### HTTP 메시지에 모든 것을 전송
 
@@ -389,7 +389,7 @@ https://www.google.com:443/search?q=hello&hl=ko 이렇게 보내게 되면
 
 <br><br>
 
-## HTTP 메서드 : HTTP API를 만들어보자
+## [HTTP 메서드 : HTTP API를 만들어보자]
 * 회원정보관리 api를 만들려고 할 때 나오는 동작들은
   * 회원 목록 조회, 회원 조회, 회원 등록, 회원 수정, 회원 삭제 등이 있다.
 
