@@ -866,7 +866,7 @@ Content-Type: application/json
 <br><br>
 
 # [HTTP 상태코드]
-## |상태코드 소개|
+## |1. 상태코드 소개|
 상태코드 : 클라이언트가 보낸 요청의 처리 상태를 응답(response)에서 알려주는 기능
 * 1xx(Informational): 요청이 수신되어 처리 중 (거의 사용되지 않음)
 * 2xx(Successeful): 요청 정상 처리
@@ -886,7 +886,7 @@ Content-Type: application/json
 
 <br>
 
-## |2xx - Successeful|
+## |2. 2xx - Successeful|
 클라이언트의 요청을 성공적으로 처리
 * **200 OK**
   * 서버에서 결과를 정상적으로 잘 처리해서 응답하면 200 OK (GET 요청 정상 처리시 발생)
@@ -908,7 +908,7 @@ Content-Type: application/json
 
 <br>
 
-## |3xx - Redirection|
+## |3. 3xx - Redirection|
 요청을 완료하기 위해 유저 에이전트(클라이언트 프로그램 즉, 웹브라우저를 말함)의 추가 조치 필요
 * **300 Multiple Choices** (거의 사용되지 않음)
 * **301 Moved Permanently**
@@ -999,7 +999,7 @@ Content-Type: application/json
 
 <br>
 
-## |4xx - Client Error, 5xx - Server Error|
+## |4. 4xx - Client Error, 5xx - Server Error|
 
 ### 4xx (Client Error)
 * 클라이언트의 요청에 잘못된 문법등으로 서버가 요청을 수행할 수 없음
@@ -1062,3 +1062,353 @@ Content-Type: application/json
   * 5xx에러는 웬만하면 서버에서는 만들면 안된다. **5xx는 정말 서버에 문제가 생겼을때 응답할 수 있게 해야한다.**
   * 예) API 스펙, 서버까지 정상일때 고객이 잔고가 부족한 경우   
     이럴때는 5xx에러를 발생시키면 안된다. -> 서버에 정말 문제가 있는것이 아니라 비즈니스 로직의 예외케이스 이므로
+
+    
+<br>
+
+# [HTTP 헤더1]
+## |1. HTTP 헤더 개요|
+### 용도
+* HTTP 전송에 필요한 모든 부가정보
+* 예) 메시지 바디의 내용, 메시지 바디의 크기, 압축, 인증, 요청 클라이언트, 서버 정보, 캐시 관리정보 등
+* 표준 헤더 매우 많음
+  * https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
+* 필요시 임의의 헤더 추가 가능
+  * 예) helloworld: hihi
+
+<br>
+
+### 분류 - RFC2616(과거 1999년)
+* 헤더의 분류
+  * **General 헤더**: 메시지 전체에 적용되는 정보, 예) Connection: close
+  * **Request 헤더**: 요청 정보, 예) User-Agent: Mozilla/5.0 (Macintosh); ..)
+    * Request시 현재 브라우저의 정보 등 전달
+  * **Response 헤더**: 응답 정보, 예) Server: Apache
+    * Response시 현재 서버의 정보 등 전달
+  * **Entity 헤더**: 엔티티 바디 정보, 예) Content-Type: text/html, Content-Length: 3423
+
+### HTTP BODY message body - RFC2616(과거)
+* 메시지 본문(message body)은 엔티티 본문(entity body)을 전달하는데 사용
+* 엔티티 본문은 요청이나 응답에서 전달할 실제 데이터(메시지 본문안에 엔티티 본문을 담아 전달)
+* **엔티티 헤더**는 **엔티티 본문**의 데이터를 해석할 수 있는 정보 제공
+  * 데이터 유형(html, json), 데이터 길이, 압축 정보 등
+
+<br>
+
+### 새로운 스펙 RFC7230 ~ 7235 등장
+* 엔티티(Entity) -> 표현(Representation)
+* Representation = Representation Matadata(표현 메타데이터) + Representation Data(표현 데이터)
+
+### HTTP BODY message body
+* 메시지 본문(message body)을 통해 표현 데이터 전달
+* 메시지 본문 = 페이로드(payload)
+* **표현**은 요청이나 응답에서 전달할 실제 데이터 (표현 헤더 + 표현 데이터)
+*** 표현 헤더는 표현 데이터**를 해석할 수 있는 정보 제공
+  * 데이터 유형(html, json), 데이터 길이, 압축 정보 등등
+* 참고: 표현 헤더는 표현 메타데이터와, 페이로드 메시지를 구분해야 하지만, 생략
+> **[왜 표현이라 말할까?]**   
+> 특정 리소스를 html, json등 여러가지로 표현하여 전달 할 수 있으므로 표현이라고 정의함   
+> **[Representation의 R이 REST의 R]**   
+
+> **[표현 메타데이터]**: 표현의 항목 중 표현 데이터를 해석할 수 있는 정보를 제공하는 것을 표현 메타데이터라함
+
+<br>
+
+## |2. 표현|
+### 종류
+회원 리소스를 HTML 표현, JSON 표현으로 전송하려 할 때의 표현의 의미와 동일   
+데이터를 전달할 때 특정 표현으로 변경해 전달하는것
+
+* Content-Type: 표현 데이터의 형식
+* Content-Encoding: 표현 데이터의 압축 방식
+* Content-Language: 표현 데이터의 자연 언어
+* Content-Length: 표현 데이터의 길이
+  > 실제론 표현 데이터의 길이는 표현과 무관한 의미가 되므로, 페이로드 헤더라고 구분됨
+* 표현 헤더는 전송, 응답 둘 다 사용
+
+### Content-Type: 표현 데이터의 형식 설명
+* 미디어 타입, 문자 인코딩
+* 예)
+  * text/html; charset=utf-8
+  * application/json  (기본이 utf-8)
+  * image/png
+
+### Content-Encoding: 표현 데이터 인코딩
+* 표현 데이터를 압축하기 위해 사용
+* 데이터를 전달하는 곳에서 압축 후 인코딩 헤더 추가
+* 데이터를 읽는 쪽에서 인코딩 헤더의 정보로 압축 해제
+* 예)
+  * gzip
+  * deflate
+  * identity (압축 안한다.)
+
+### Content-Language: 표현 데이터의 자연 언어
+* 표현 데이터의 자연 언어를 표현
+* 예)
+  * ko
+  * en
+  * en-US
+
+### Content-Length: 표현 데이터의 길이
+* 바이트 단위
+* Transfer-Encoding(전송 코딩)을 사용하면 Content-Length를 사용하면 안됨
+  * Transfer-Encoding안에 Content-Length와 같은 정보들이 들어있으므로
+
+<br> 
+
+## |3. 콘텐츠 협상(Contents Negotiation)|
+클라이언트가 선호하는 표현 요청   
+* Accept: 클라이언트가 선호하는 미디어 타입 전달
+* Accept-Charset: 클라이언트가 선호하는 문자 인코딩
+* Accept-Encoding: 클라이언트가 선호하는 압축 인코딩
+* Accept-Language: 클라이언트가 선호하는 자연 언어
+> **협상 헤더는 요청시에만 사용**
+
+> **ex) Accept-Language의 역할**   
+> 다중 언어 지원 서버(en, ko)가 미국 사이트라면 기본 언어는 en   
+> 한국어 브라우저에서 요청을 보내면 Content-Language: en으로 서버가 응답한다(default)   
+> 하지만 Accept-Language: ko를 같이 요청에 보내게 되면 서버는 다중언어를 지원하므로 한국어로 응답한다.
+
+### 협상과 우선순위1 Quality Values(q)
+만약 다중 언어 지원 서버가 영어, 독일어만 지원할 때 Accept-Language: ko를 전달하면 서버는   
+한국어를 지원하지 않으므로 응답할 수 없음   
+이런 경우를 대비해 우선순위를 두어 차선책인 영어를 전달받을 수 있게 함
+
+
+* Quality Values(q)값 사용
+* 0~1, **클수록 높은 우선수위**
+* 생략하면 1
+* GET /event   
+  Accept-Language: ko-KR, ko;q=0.9,en-US;q=0.8,en;q=0.7
+    1. ko-KR;q=1 (q생략)
+    2. ko;q=0.9
+    3. en-US;q=0.8
+    4. en;q=0.7
+
+위와같이 보내게 된다면 한국어를 지원하지 않는다면 서버는 그 다음 우선순위인 영어를 선택해 응답하게 된다.
+
+### 협상과 우선순위2
+GET /event   
+Accept: text/*, text/plain, text/plain;format=flowed, */\*
+* 구체적인 것이 우선한다.
+    1. text/plain;format=flowed
+    2. text/plain
+    3. text/*
+    4. */\*
+
+### 협상과 우선순위3 Quality values(q)
+* 구체적인 것을 기준으로 미디어 타입을 맞춘다.
+* Accept: text/*;q=0.3, text/html;q=0.7, text/html;level=1, texxt/html;level=2;q=0.4, */\*;q=0.5
+   
+  |Media Type|Quality|
+  |---------------------------|----|
+  |text/html;level=1|1|
+  |text/html|0.7|
+  |text/palin|0.3|
+  |images/jpeg|0.5|
+  |text/html;level=2|0.4|
+  |text/html;level=3|0.7|
+
+<br>
+
+## |4. 전송 방식|
+* Transfer-Encoding
+* Range, Content-Range
+
+### 전송 방식 설명
+* 단순 전송
+* 압축 전송
+* 분할 전송
+* 범위 전송
+
+### 단순 전송 Content-Length
+* 요청을하면 응답을 주는데 메시지 바디에서 대한 Content-Length를 지정해준다.
+* 즉 길이 값을 앎
+
+### 압축 전송 Content-Encoding
+* 서버에서 gzip과 같은것으로 압축하여 전송함
+* 이런 경우에는 Content-Encoding을 같이 보내줘야 한다.
+
+### 분할 전송 Transfer-Encoding
+* Transfer-Encoding: chunked(덩어리)
+* 메시지 바디를 나누어서 전송한다. 전송이 끝난다면 0 \r\n을 전송
+* 용량이 매우 큰 경우 분할하여 전송할 때 사용한다.
+* 분할 전송시에는 Content-Length를 넣으면 안된다.
+  * Content-Length가 초기에 예상이 안됨
+  * 또한 chunked마다 바이트 정보가 있으므로 보내지 않아야 함
+
+### 범위 전송 Range, Content-Range
+* Content-Range: bytes 1001-2000 / 2000
+* 기존에 파일을 다운받다가 끊겼다면 다시 다운 받을때 이어 받기할 때 사용되기도 함
+
+<br>
+
+## |5. 일반 정보|
+* From: 유저 에이전트의 이메일 정보
+* Referer: 이전 웹 페이지 주소
+* User-Agent: 유저 에이전트 애플리케이션 정보
+* Server: 요청을 처리하는 오리진 서버의 소프트웨어 정보
+* Date: 메시지가 생성된 날짜
+
+### From: 유저 에이전트의 이메일 정보
+* 일반적으로 잘 사용되지 않음(크롤링시 우리 사이트 이용하지 말라고 알리고 싶을때)
+* 검색 엔진 같은 곳에서, 주로 사용
+* 요청에서 주로 사용
+
+### Referer: 이전 웹 페이지 주소
+* 현재 요청된 페이지의 이전 웹 페이지 주소
+* A -> B로 이동할 때, B를 요청할 때 Referer: A를 포함해서 요청
+* Referer를 사용해서 유입 경로 분석 가능
+* 요청에서 사용
+* referrer의 오타이다.
+  
+### User-Agent: 유저 에이전트 애플리케이션 정보
+  * 클라이언트의 애플리케이션 정보(웹 브라우저 정보, 등등)
+  * 특정 브라우저에서만 생기는 버그를 파악할 수 있다. (로그 파싱하여)
+  * 통계정보 뽑기 좋음
+  * 요청에서 사용
+
+### Server: 요청을 처리하는 ORIGIN 서버의 소프트웨어 정보
+HTTP 요청을 보내면 중간에 여러 프록시 서버를 거치게 된다.   
+실제 나의 요청이 도착해 HTTP응답을 해주는 진짜 서버를 ORIGIN Server라고 한다.
+* 응답에서 사용된다.
+
+### Date: 메시지가 발생한 날짜와 시간
+* 응답에서 사용된다.
+
+<br>
+
+## |6. 특별한 정보|
+특별한 정보를 제공하는 헤더이다.   
+Host, Location, Allow, Retry-After
+
+### Host: 요청한 호스트 정보(도메인)
+* 요청에서 사용
+* 필수 헤더임 (매우 중요)
+* 하나의 서버가 여러 도메인을 처리해야 할 때 구분해준다.
+* 하나의 IP 주소에 여러 도메인이 적용되어 있을 때
+
+* 예제
+  * 가상호스트를 통해 여러 도메인을 한번에 처리할 수 있는 서버(실제 애플리케이션이 여러개 구동될 수 있다.)
+  * 만약 Host가 없다면 특정 요청을 보내게 되면 aaa.com, bbb.com, ccc.com중   
+    어느 애플리케이션에 들어가야할 지 구분하지 못한다.
+  * Host: aaa.com으로 헤더를 넣어주면 Host헤더를 가지고 서버 내부에서 aaa.com으로 가상호스팅 해준다.
+
+### Location: 페이지 리다이렉션
+* 웹 브라우저는 3xx 응답의 결과에 Location 헤더가 있으면, Location 위치로 자동 이동(리다이렉트)
+* 201 (Created): Location 값은 요청에 의해 생성된 리소스 URI (201도 사용 가능하다.)
+* 3xx (Redirection): Location 값은 요청을 자동으로 리다이렉션 하기 위한 대상 리소스 가리킴
+
+### Allow: 허용 가능한 HTTP 메서드
+URL 경로는 있지만, POST 메소드를 지원하지 않는 경우
+* 405 (Method Not Allowed) 에서 응답에 포함함
+* Allow: GET, HEAD, PUT (POST는 허락되지 않음)
+
+### Retry-After: 유저 에이전트가 다음 요청을 하기까지 기다려야 하는 시간
+* 503 (Service Unavailable): 서비스가 언제까지 불능인지 알려줄 수 있음
+* 날짜를 표기하거나 초단위로 표기함
+
+<br>
+
+## |7. 인증|
+* Authorization: 클라이언트 인증 정보를 서버에 전달
+* WWW-Authenticate: 리소스 접근시 필요한 인증 방법 정의
+
+### Authorization: 클라이언트 인증 정보를 서버에 전달
+* 클라이언트 인증은 여러가지 매커니즘이 존재하고 종류마다 value에 들어가는 값이 다르다.
+* Authorization: Basic xxxxxxxxxxxxxxxx
+  
+### WWW-Authenticate: 리소스 접근시 필요한 인증 방법 정의
+* 리소스 접근시 필요한 인증 방법 정의
+* 401 Unauthorized 응답과 함께 사용
+* WWW-Authenticate: Newauth realm="apps", type=1, title="Login to \\"apps\\"", Basic realm="simple"
+* 인증을 하려면 위와같은 정보를 참고해서 제대로된 인증정보를 만들라는 정보를 서버에서 클라이언트로 반환한다.
+
+<br>
+
+## |8. 쿠기|
+* Set-Cookie: 서버에서 클라이언트로 쿠키 전달(응답)
+* Cookie: 클라이언트가 서버에서 받은 쿠키를 저장하고, HTTP 요청시 서버로 전달
+
+### Stateless와 쿠키의 필요성
+* HTTP는 무상태 프로토콜
+* 클라이언트와 서버가 요청, 응답을 주고 받으면 연결 끊어짐
+* 클라이언트가 다시 요청하면 서버는 이전 요청을 기억하지 못한다.
+* 클라이언트와 서버는 서로 상태를 유지하지 않는다.
+
+<br>
+
+* 쿠키를 사용하기 이전 로그인을 한 이후 재 요청을 하면 서버는 로그인을 인식하지 못함
+* 그렇다면 모든 요청에 사용자 정보를 넘긴다면?
+  * 보안 등 여러 문제 발생
+  * 브라우저를 완전히 종료하고 다시 열면?
+
+### 쿠키의 생성
+* 클라이언트가 로그인 정보를 서버로 넘김(user=홍길동)
+* 서버는 Set-Cookie: user=홍길동 이라는 정보를 응답한다.
+* 웹 브라우저는 쿠키 저장소에 user=홍길동 정보를 저장한다.
+### 쿠키의 사용
+* 로그인 이후 welcome 페이지 접근
+  * 이전과 동일한 페이지에 접속하면 웹 브라우저는 자동으로 쿠키 저장소를 뒤져서 쿠키 값을 무조건 꺼낸다.
+  * Cookie: user=홍길동 을 가지고 서버에 요청을 보낸다.
+* 서버는 이를 확인하고 로그인에 맞게 응답한다.
+* **쿠키는 모든 요청에 쿠키 정보 자동적으로 포함한다.**
+
+<br>
+
+### 쿠키
+정말 모든곳에 쿠키 정보를 보내면 보안등 여러가지 문제가 있으므로 제약해야함
+* 예) set-cookie: sessionId=abcd1234; expires=Sat, 26-Dec-2020 00:00:00 GMT; path=/; domain=.google.com; Secure
+* 주 사용처
+  * 사용자 로그인 세션관리(사용자 정보를 그대로 내리기 보단, session key를 이용해 인증할 수 있도록 함
+  * 광고 정보 트래킹 
+* 쿠키 정보는 항상 서버에 전송됨
+  * 네트워크 트래픽 추가 유발됨
+  * 따라서 최소한의 정보만 사용(세션 ID, 인증 토큰)
+  * 서버에 전송하지 않고, 웹 브라우저 내부에 데이터 저장 원하면, 웹 스토리지(localStorage, sessionStroage) 참고
+* 주의!
+  * **보안에 민감한 데이터는 저장하면 안됨(주민번호, 신용카드 정보 등)**
+
+### 쿠키 - 생명주기 Expires, max-age
+* Set-Cookie: **expires**=Sat, 26-Dec-2020 00:00:00 GMT(GMT 기준으로 넣어야함)
+  * 만료일이 되면 자동 쿠키 삭제
+* Set-Cookie: **max-age**=4600 (4600초)
+  * 0이나 음수를 지정하면 쿠키 삭제
+* 세션 쿠키: 만료 날짜를 생략하면 브라우저 종료시 까지만 유지
+* 영속 쿠키: 만료 날짜를 입력하면 해당 날짜까지만 유지된다.
+
+### 쿠키 - 도메인 Domain
+내가 지정한 쿠키가 아무 사이트에서나 생성되면 큰일 나므로 도메인을 지정할 수 있다.
+* 예) doamin=example.org
+* **명시: 명시한 문서 기준 도메인 + 서브 도메인 포함**
+  * domain=example.org를 지정해서 쿠키 생성하면
+  * example.org는 물론이고
+  * dev.example.org도 쿠키 접근 가능
+* **생략: 현재 문서 기준 도메인만 적용**
+  * example.org에서 쿠키를 생성하고 domain 지정을 생략하면
+    * example.org에서만 쿠키 접근 가능하고
+    * dev.example.org는 쿠키 미접근
+
+### 쿠키 - 경로 Path
+도메인으로 필터하고 경로로 추가 필터를 함
+* 예) path=/home
+* **이 경로를 포함한 하위 경로 페이지만 쿠키 접근 가능**
+* **일반적으로 path=/ 루트로 지정**
+* 예)
+  * **path=/home 지정**
+  * /home -> 가능
+  * /home/level1 -> 가능
+  * /home/level1/level2 -> 가능
+  * /hello -> 불가능
+
+### 쿠키 - 보안 Secure, HttpOnly, SameSite
+* **Secure**
+  * 쿠키는 원래 http, https 구분하지 않고 전송한다.
+  * Secure 적용시 https인 경우에만 전송함
+* **HttpOnly**
+  * XSS 공격 방지용
+  * 자바스크립트에서 접근 불가(document.cookie)
+  * HTTP 전송에만 사용
+* **SameSite**
+  * XSRF 공격 방지
+  * 요청 도메인과 쿠키에 설정된 도메인이 같은 경우만 쿠키 전송
